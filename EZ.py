@@ -350,10 +350,10 @@ def sauvegarde_image_matrice(mat, chemin, local=True):
     if not local:
         chemin = os.path.join(mon_chemin, chemin)
     image = creation_image(len(mat[0]), len(mat))
-    for ligne in range(len(mat)):
+    for ligne, item in enumerate(mat):
         for colonne in range(len(mat[0])):
-            colorie_pixel_image(image, colonne, ligne, mat[ligne][colonne][0], mat[ligne][colonne][1],
-                                mat[ligne][colonne][2])
+            colorie_pixel_image(image, colonne, ligne, item[colonne][0], item[colonne][1],
+                                item[colonne][2])
     sauvegarde_image(image, chemin)
 
 
