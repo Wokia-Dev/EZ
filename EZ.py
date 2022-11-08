@@ -245,10 +245,13 @@ def __trace_quart_secteur4(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None
     maxi = int(math.cos(angle2) * r2)
     for i in range(mini, maxi + 1):
         if i == 0:
-            if r1 != 0:
-                if (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < 3 * math.pi / 2 + 0.00001) or (
-                        angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -math.pi / 2 + 0.00001):
-                    trace_segment(x, y + r1, x, y + r2, r, v, b, t, canvas)
+            if (
+                r1 != 0
+                and (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < 3 * math.pi / 2 + 0.00001)
+                or (
+                    angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -math.pi / 2 + 0.00001)
+            ):
+                trace_segment(x, y + r1, x, y + r2, r, v, b, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), -math.tan(angle2) * i))
