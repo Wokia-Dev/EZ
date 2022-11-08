@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec  8 21:07:27 2018
+Created on Sat Dec 8 21:07:27 2018
 
 @author: Eric Caspar
 
@@ -17,18 +17,19 @@ v1.5.3 (du 2/12/2019) Correction d'un bug sur les chemins
 v1.6 (du 3/12/2019) Ajout de la rotation et du zoom d'une image
 v1.6.1 (du 5/12/2019) Problème sur le chemin retour en arrière
 v1.6.2 (du 21/12/2019) Ajout d'otions pour la recherche des chemins
-v1.7 (du 11/03/2021) Ajout de fonctions pour avoir une vrai matrice de tupple pour cha
+v1.7 (du 11/03/2021) Ajout de fonctions pour avoir une vraie matrice de tupple pour cha
 rger et sauvegarder une image
 v1.7.1 (du 25/02/2022) Correction d'un 'bug' sur la sauvegarde d une image par defaut sur edupython il sauve dans le
 repertoire d'edupython
 v1.7.2 (du 29/03/2022) Ajout d'une fonction qui selectionne une partie d'une image
 """
-import pygame
-import time
 import math
-from pygame.locals import *
-import pygame.gfxdraw
 import os
+import time
+
+import pygame
+import pygame.gfxdraw
+from pygame.locals import *
 
 """
 Liste des événements :
