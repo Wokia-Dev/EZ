@@ -83,8 +83,7 @@ def creation_image(longueur, hauteur):
     """Creation d'une image (Surface) que l'on peut modifier et sauvegarder"""
     if pygame.display.get_init:
         return pygame.Surface((longueur, hauteur)).convert_alpha()
-    else:
-        return pygame.Surface((longueur, hauteur))
+    return pygame.Surface((longueur, hauteur))
 
 
 def recupere_couleur_image(image, x, y):
@@ -280,11 +279,10 @@ def trace_secteur_angulaire(x, y, r1, r2, angle1, angle2, rouge=0, vert=0, bleu=
                 fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(maxi), rouge, vert, bleu,
                                      transparence, canvas)
                 return
-            else:
-                fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(depart * 90 + 90), rouge,
-                                     vert, bleu, transparence, canvas)
-                angle_debut = depart * 90 + 90
-                depart += 1
+            fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(depart * 90 + 90), rouge,
+                                 vert, bleu, transparence, canvas)
+            angle_debut = depart * 90 + 90
+            depart += 1
 
 
 def trace_arc(x, y, r, angle1, angle2, rouge=0, vert=0, bleu=0, transparence=255, canvas=None):
@@ -317,8 +315,7 @@ def charge_image(chemin, local=True):
 
     if pygame.display.get_init:
         return pygame.image.load(chemin).convert_alpha()
-    else:
-        return pygame.image.load(chemin)
+    return pygame.image.load(chemin)
 
 
 def charge_image_en_matrice(chemin, local=True):
@@ -405,34 +402,32 @@ def recupere_evenement():
     evenement = pygame.event.poll()
     if evenement == pygame.NOEVENT:
         return "RIEN"
-    elif evenement.type == pygame.KEYDOWN:
+    if evenement.type == pygame.KEYDOWN:
         return "TOUCHE_ENFONCEE"
-    elif evenement.type == pygame.KEYUP:
+    if evenement.type == pygame.KEYUP:
         return "TOUCHE_RELACHEE"
-    elif evenement.type == pygame.MOUSEMOTION:
+    if evenement.type == pygame.MOUSEMOTION:
         return "SOURIS_MOUVEMENT"
-    elif evenement.type == pygame.MOUSEBUTTONDOWN:
+    if evenement.type == pygame.MOUSEBUTTONDOWN:
         if evenement.button == 1:
             return "SOURIS_BOUTON_GAUCHE_ENFONCE"
-        elif evenement.button == 3:
+        if evenement.button == 3:
             return "SOURIS_BOUTON_DROIT_ENFONCE"
-        elif evenement.button == 4:
+        if evenement.button == 4:
             return "SOURIS_MOLETTE_HAUT"
-        elif evenement.button == 5:
+        if evenement.button == 5:
             return "SOURIS_MOLETTE_BAS"
-        else:
-            return "RIEN"
+        return "RIEN"
     elif evenement.type == pygame.MOUSEBUTTONUP:
         if evenement.button == 1:
             return "SOURIS_BOUTON_GAUCHE_RELACHE"
-        elif evenement.button == 3:
+        if evenement.button == 3:
             return "SOURIS_BOUTON_DROIT_RELACHE"
-        elif evenement.button == 4:
+        if evenement.button == 4:
             return "SOURIS_MOLETTE_HAUT"
-        elif evenement.button == 5:
+        if evenement.button == 5:
             return "SOURIS_MOLETTE_BAS"
-        else:
-            return "RIEN"
+        return "RIEN"
     elif evenement.type == pygame.QUIT:
         return "EXIT"
     else:
