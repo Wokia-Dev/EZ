@@ -60,7 +60,6 @@ def creation_fenetre(largeur=300, hauteur=200, nom="fenetre", icone=None):
     de taille donnée"""
     global fenetre
     global clavier
-    global son
     if icone is not None:
         image = charge_image(icone)
     else:
@@ -105,7 +104,6 @@ def destruction_fenetre():
 
 def __choix(canevas):
     """Fonction interne"""
-    global fenetre
     if canevas is None:
         surface = fenetre
     else:
@@ -443,26 +441,21 @@ def recupere_evenement():
 
 def souris_x():
     """Donne la position en x de la souris au moment où l'événement est récupéré"""
-    global evenement
     return evenement.pos[0]
 
 
 def souris_y():
     """Donne la position en y de la souris au moment où l'événement est récupéré"""
-    global evenement
     return evenement.pos[1]
 
 
 def coordonnees_souris():
     """Donne les coordonnees de la souris"""
-    global evenement
     return evenement.pos[0], evenement.pos[1]
 
 
 def touche():
     """Donne la touche appuyé au moment de la récupération de l'événement sous forme de chaine de caractère"""
-    global evenement
-    global clavier
     caractere = pygame.key.name(evenement.key)
     return clavier.get(caractere, caractere)
 
@@ -489,7 +482,6 @@ def donne_touche():
 
 def sauvegarde_fenetre():
     """retourne une image (surface) de l'écran """
-    global fenetre
     return fenetre.copy()
 
 
@@ -587,6 +579,4 @@ def frame_suivante():
     Attend le temps nécéssaire pour avoir le nombre d'image par seconde demandé
     entre deux appels.
     """
-    global fps
-    global debut
     debut.tick(fps)
