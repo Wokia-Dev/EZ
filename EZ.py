@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec 8 21:07:27 2018
+Created on Sat Dec  8 21:07:27 2018
 
 @author: Eric Caspar
 
@@ -17,19 +17,11 @@ v1.5.3 (du 2/12/2019) Correction d'un bug sur les chemins
 v1.6 (du 3/12/2019) Ajout de la rotation et du zoom d'une image
 v1.6.1 (du 5/12/2019) Problème sur le chemin retour en arrière
 v1.6.2 (du 21/12/2019) Ajout d'otions pour la recherche des chemins
-v1.7 (du 11/03/2021) Ajout de fonctions pour avoir une vraie matrice de tupple pour cha
+v1.7 (du 11/03/2021) Ajout de fonctions pour avoir une vrai matrice de tupple pour cha
 rger et sauvegarder une image
-v1.7.1 (du 25/02/2022) Correction d'un 'bug' sur la sauvegarde d une image par defaut sur edupython il sauve dans le
-repertoire d'edupython
+v1.7.1 (du 25/02/2022) Correction d'un 'bug' sur la sauvegarde d une image par defaut sur edupython il sauve dans le repertoire d'edupython
 v1.7.2 (du 29/03/2022) Ajout d'une fonction qui selectionne une partie d'une image
 """
-import math
-import os
-import time
-
-import pygame
-import pygame.gfxdraw
-from pygame.locals import *
 
 """
 Liste des événements :
@@ -46,6 +38,14 @@ Liste des événements :
 "EXIT"
 """
 
+import math
+import os
+import time
+
+import pygame
+import pygame.gfxdraw
+from pygame.locals import *
+
 global fenetre
 global evenement
 global clavier
@@ -60,11 +60,12 @@ def creation_fenetre(largeur=300, hauteur=200, nom="fenetre", icone=None):
     de taille donnée"""
     global fenetre
     global clavier
+    global son
     if icone is not None:
         image = charge_image(icone)
     else:
         image = creation_image(25, 25)
-        trace_rectangle_droit(0, 0, 25, 25, 255, 0, 0, canvas=image)
+        trace_rectangle_droit(0, 0, 25, 25, "FF0000", canvas=image)
     clavier = {"q": "a", ";": "m", "a": "q", "z": "w", "w": "z", "m": ","}
     pygame.init()
     fenetre = pygame.display.set_mode((largeur, hauteur))
@@ -81,9 +82,10 @@ def test_fenetre():
 
 def creation_image(longueur, hauteur):
     """Creation d'une image (Surface) que l'on peut modifier et sauvegarder"""
-    if pygame.display.get_init:
+    if pygame.display.get_init():
         return pygame.Surface((longueur, hauteur)).convert_alpha()
-    return pygame.Surface((longueur, hauteur))
+    else:
+        return pygame.Surface((longueur, hauteur))
 
 
 def recupere_couleur_image(image, x, y):
@@ -91,9 +93,10 @@ def recupere_couleur_image(image, x, y):
     return image.get_at((x, y))
 
 
-def colorie_pixel_image(image, x, y, rouge, vert, bleu, transparence=255):
+def colorie_pixel_image(image, x, y, color, transparence=255):
     """Equivalent à EZ.trace_point, sauf que la fenetre n'est plus la surface par défaut"""
-    trace_point(x, y, rouge, vert, bleu, transparence, image)
+    rgb_color = hex_to_rgb(color)
+    trace_point(x, y, rgb_color[0], rgb_color[1], rgb_color[2], transparence, image)
 
 
 def destruction_fenetre():
@@ -103,6 +106,7 @@ def destruction_fenetre():
 
 def __choix(canevas):
     """Fonction interne"""
+    global fenetre
     if canevas is None:
         surface = fenetre
     else:
@@ -128,48 +132,53 @@ def dimension(canvas=None):
     return pygame.Surface.get_size(surface)
 
 
-def trace_segment(xA, yA, xB, yB, rouge=0, vert=0, bleu=0, transparence=255, canvas=None):
+def trace_segment(xA, yA, xB, yB, color, transparence=255, canvas=None):
     """Trace un segment [AB] de couleur donné (noir par defaut) par défaut il est aliasé
         Si on donne un canvas (en réalité une surface) alors le dessin se fait sur le canvas et pas sur l'ecran
     """
+    color = hex_to_rgb(color)
     surface = __choix(canvas)
     if yA == yB:
-        pygame.gfxdraw.hline(surface, xA, xB, yA, (rouge, vert, bleu, transparence))
+        pygame.gfxdraw.hline(surface, xA, xB, yA, (color[0], color[1], color[2], transparence))
     elif xA == xB:
-        pygame.gfxdraw.vline(surface, xA, yA, yB, (rouge, vert, bleu, transparence))
+        pygame.gfxdraw.vline(surface, xA, yA, yB, (color[0], color[1], color[2], transparence))
     else:
-        pygame.gfxdraw.line(surface, xA, yA, xB, yB, (rouge, vert, bleu, transparence))
+        pygame.gfxdraw.line(surface, xA, yA, xB, yB, (color[0], color[1], color[2], transparence))
 
 
-def trace_rectangle_droit(xA, yA, longueur, hauteur, rouge=0, vert=0, bleu=0, zoom=1, transparence=255, canvas=None):
+def trace_rectangle_droit(xA, yA, longueur, hauteur, color="000000", zoom=1, transparence=255, canvas=None):
     """Trace un rectangle dont les cotées sont verticaux ou horizantaux de couleur noir par défaut
         Si on donne un canvas alors le dessin se fait sur le canvas et pas sur l'ecran
     """
+    rgb = hex_to_rgb(color)
     surface = __choix(canvas)
     nouvelle_surface = pygame.Surface((longueur * zoom, hauteur * zoom))
     nouvelle_surface.set_alpha(transparence)
-    nouvelle_surface.fill(pygame.Color(rouge, vert, bleu))
+    nouvelle_surface.fill(pygame.Color(rgb[0], rgb[1], rgb[2]))
     surface.blit(nouvelle_surface, (int(float(xA) * float(zoom)), int(float(yA) * float(zoom))))
 
 
-def trace_triangle(xA, yA, xB, yB, xC, yC, rouge=0, vert=0, bleu=0, zoom=1, transparence=255, canvas=None):
+def trace_triangle(xA, yA, xB, yB, xC, yC, color="000000", zoom=1, transparence=255, canvas=None):
     """Trace un triangle dont les sommets sont données et de couleurs données par défaut la couleur est noire
         Si on donne un canvas alors le dessin se fait sur le canvas et pas sur l'ecran
     """
+    rgb_color = hex_to_rgb(color)
     surface = __choix(canvas)
     pygame.gfxdraw.filled_trigon(surface, int(float(xA) * float(zoom)), int(float(yA) * float(zoom)),
                                  int(float(xB) * float(zoom)), int(float(yB) * float(zoom)),
-                                 int(float(xC) * float(zoom)),
-                                 int(float(yC) * float(zoom)), pygame.Color(rouge, vert, bleu, transparence))
+                                 int(float(xC) * float(zoom)), int(float(yC) * float(zoom)),
+                                 pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparence))
 
 
-def trace_disque(x, y, rayon, rouge=0, vert=0, bleu=0, zoom=1, transparence=255, canvas=None):
+def trace_disque(x, y, rayon, color="000000", zoom=1, transparence=255, canvas=None):
     """Trace un disque dont le centre et le rayon sont données et de couleurs données par défaut la couleur est noire
         Si on donne un canvas alors le dessin se fait sur le canvas et pas sur l'ecran
     """
+    rgb_color = hex_to_rgb(color)
     surface = __choix(canvas)
     pygame.gfxdraw.filled_circle(surface, int(float(x) * float(zoom)), int(float(y) * float(zoom)),
-                                 int(float(rayon) * float(zoom)), pygame.Color(rouge, vert, bleu, transparence))
+                                 int(float(rayon) * float(zoom)),
+                                 pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparence))
 
 
 def trace_cercle(x, y, rayon, rouge=0, vert=0, bleu=0, transparence=255, canvas=None):
@@ -180,14 +189,14 @@ def trace_cercle(x, y, rayon, rouge=0, vert=0, bleu=0, transparence=255, canvas=
     pygame.gfxdraw.aacircle(surface, x, y, rayon, pygame.Color(rouge, vert, bleu, transparence))
 
 
-def __trace_quart_secteur1(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None):
+def __trace_quart_secteur1(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle2) * r1)
     maxi = int(math.cos(angle1) * r2)
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle2 > 0 and math.fmod(angle2, 2 * math.pi) > math.pi / 2 - 0.00001) or (
                     angle2 < 0 and math.fmod(angle2, 2 * math.pi) < -3 * math.pi / 2 + 0.00001):
-                trace_segment(x, y - r1, x, y - r2, r, v, b, t, canvas)
+                trace_segment(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * i))
@@ -197,17 +206,17 @@ def __trace_quart_secteur1(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * i))
-            trace_segment(x + i, y - hmin, x + i, y - hmax, r, v, b, t, canvas)
+            trace_segment(x + i, y - hmin, x + i, y - hmax, color, t, canvas)
 
 
-def __trace_quart_secteur2(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None):
+def __trace_quart_secteur2(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle2) * r2)
     maxi = int(math.cos(angle1) * r1)
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < math.pi / 2 + 0.00001) or (
                     angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -3 * math.pi / 2 + 0.00001):
-                trace_segment(x, y - r1, x, y - r2, r, v, b, t, canvas)
+                trace_segment(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i > -r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle2) * i))
@@ -217,17 +226,17 @@ def __trace_quart_secteur2(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * i))
-            trace_segment(x + i, y - hmin, x + i, y - hmax, r, v, b, t, canvas)
+            trace_segment(x + i, y - hmin, x + i, y - hmax, color, t, canvas)
 
 
-def __trace_quart_secteur3(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None):
+def __trace_quart_secteur3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle1) * r2)
     maxi = int(math.cos(angle2) * r1)
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle2 > 0 and math.fmod(angle2, 2 * math.pi) > 3 * math.pi / 2 - 0.00001) or (
                     angle2 < 0 and math.fmod(angle2, 2 * math.pi) > -math.pi / 2 - 0.00001):
-                trace_segment(x, y + r1, x, y + r2, r, v, b, t, canvas)
+                trace_segment(x, y + r1, x, y + r2, color, t, canvas)
         else:
             if i > -r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * (-i)))
@@ -237,55 +246,53 @@ def __trace_quart_secteur3(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * (-i)))
-            trace_segment(x + i, y + hmin, x + i, y + hmax, r, v, b, t, canvas)
+            trace_segment(x + i, y + hmin, x + i, y + hmax, color, t, canvas)
 
 
-def __trace_quart_secteur4(x, y, r1, r2, angle1, angle2, r, v, b, t, canvas=None):
+def __trace_quart_secteur4(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle1) * r1)
     maxi = int(math.cos(angle2) * r2)
     for i in range(mini, maxi + 1):
         if i == 0:
-            if (
-                r1 != 0
-                and (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < 3 * math.pi / 2 + 0.00001)
-                or (
-                    angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -math.pi / 2 + 0.00001)
-            ):
-                trace_segment(x, y + r1, x, y + r2, r, v, b, t, canvas)
+            if r1 != 0:
+                if (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < 3 * math.pi / 2 + 0.00001) or (
+                        angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -math.pi / 2 + 0.00001):
+                    trace_segment(x, y + r1, x, y + r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), -math.tan(angle2) * i))
             else:
                 hmin = -int(math.tan(angle2) * i)
-            if angle1 % (2 * math.pi) == -math.pi / 2 or angle1 % (2 * math.pi) == 3 * math.pi / 2:
+            if (angle1 % (2 * math.pi) == -math.pi / 2 or angle1 % (2 * math.pi) == 3 * math.pi / 2):
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * (-i)))
-            trace_segment(x + i, y + hmin, x + i, y + hmax, r, v, b, t, canvas)
+            trace_segment(x + i, y + hmin, x + i, y + hmax, color, t, canvas)
 
 
-def trace_secteur_angulaire(x, y, r1, r2, angle1, angle2, rouge=0, vert=0, bleu=0, transparence=255, canvas=None):
+def trace_secteur_angulaire(x, y, r1, r2, angle1, angle2, color, transparence=255, canvas=None):
     """Trace un secteur angulaire délimité par deux rayons, Attention la fonction est lente
     Si on donne un canvas alors le dessin se fait sur le canvas et pas sur l'ecran"""
     mini, maxi = min(angle1, angle2), max(angle1, angle2)
     fonction = [__trace_quart_secteur1, __trace_quart_secteur2, __trace_quart_secteur3, __trace_quart_secteur4]
     if maxi - mini >= 360:
-        __trace_quart_secteur1(x, y, r1, r2, 0, math.pi / 2, rouge, vert, bleu, transparence, canvas)
-        __trace_quart_secteur2(x, y, r1, r2, math.pi / 2, math.pi, rouge, vert, bleu, transparence, canvas)
-        __trace_quart_secteur3(x, y, r1, r2, math.pi, 3 * math.pi / 2, rouge, vert, bleu, transparence, canvas)
-        __trace_quart_secteur4(x, y, r1, r2, 3 * math.pi / 2, 2 * math.pi, rouge, vert, bleu, transparence, canvas)
+        __trace_quart_secteur1(x, y, r1, r2, 0, math.pi / 2, color, transparence, canvas)
+        __trace_quart_secteur2(x, y, r1, r2, math.pi / 2, math.pi, color, transparence, canvas)
+        __trace_quart_secteur3(x, y, r1, r2, math.pi, 3 * math.pi / 2, color, transparence, canvas)
+        __trace_quart_secteur4(x, y, r1, r2, 3 * math.pi / 2, 2 * math.pi, color, transparence, canvas)
     else:
         depart = mini // 90
         angle_debut = mini
         while True:
             if maxi < depart * 90 + 90:
-                fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(maxi), rouge, vert, bleu,
+                fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(maxi), color,
                                      transparence, canvas)
                 return
-            fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(depart * 90 + 90), rouge,
-                                 vert, bleu, transparence, canvas)
-            angle_debut = depart * 90 + 90
-            depart += 1
+            else:
+                fonction[depart % 4](x, y, r1, r2, math.radians(angle_debut), math.radians(depart * 90 + 90), color,
+                                     transparence, canvas)
+                angle_debut = depart * 90 + 90
+                depart += 1
 
 
 def trace_arc(x, y, r, angle1, angle2, rouge=0, vert=0, bleu=0, transparence=255, canvas=None):
@@ -303,12 +310,14 @@ def trace_ellipse(x, y, rayon_horizontale, rayon_verticale, rouge=0, vert=0, ble
     pygame.gfxdraw.aaellipse(surface, x, y, rayon_horizontale, rayon_verticale, (rouge, vert, bleu, transparence))
 
 
-def trace_ellipse_pleine(x, y, rayon_horizontale, rayon_verticale, rouge=0, vert=0, bleu=0, transparence=255,
+def trace_ellipse_pleine(x, y, rayon_horizontale, rayon_verticale, color, transparence=255,
                          canvas=None):
     """Trace l'intérieur d'une ellipse (un ovale) de centre (x,y) de rayon horizontale et verticale donnée.
     L'éllipse est droite"""
+    rgb = hex_to_rgb(color)
     surface = __choix(canvas)
-    pygame.gfxdraw.filled_ellipse(surface, x, y, rayon_horizontale, rayon_verticale, (rouge, vert, bleu, transparence))
+    pygame.gfxdraw.filled_ellipse(surface, x, y, rayon_horizontale, rayon_verticale,
+                                  (rgb[0], rgb[1], rgb[2], transparence))
 
 
 def charge_image(chemin, local=True):
@@ -318,7 +327,8 @@ def charge_image(chemin, local=True):
 
     if pygame.display.get_init:
         return pygame.image.load(chemin).convert_alpha()
-    return pygame.image.load(chemin)
+    else:
+        return pygame.image.load(chemin)
 
 
 def charge_image_en_matrice(chemin, local=True):
@@ -326,7 +336,7 @@ def charge_image_en_matrice(chemin, local=True):
     if not local:
         chemin = os.path.join(mon_chemin, chemin)
 
-    if pygame.display.get_init:
+    if pygame.display.get_init == True:
         image = pygame.image.load(chemin).convert_alpha()
     else:
         image = pygame.image.load(chemin)
@@ -350,17 +360,16 @@ def sauvegarde_image_matrice(mat, chemin, local=True):
     if not local:
         chemin = os.path.join(mon_chemin, chemin)
     image = creation_image(len(mat[0]), len(mat))
-    for ligne, item in enumerate(mat):
+    for ligne in range(len(mat)):
         for colonne in range(len(mat[0])):
-            colorie_pixel_image(image, colonne, ligne, item[colonne][0], item[colonne][1],
-                                item[colonne][2])
+            colorie_pixel_image(image, colonne, ligne, mat[ligne][colonne][0], mat[ligne][colonne][1])
     sauvegarde_image(image, chemin)
 
 
 def trace_image(image, x, y, transparence=255, canvas=None):
-    """Trace une image à la postion donnée attention si vous appliquez la transparence il ne faut pas que l'image soit
-    trnaparente elle même
-    Par défaut l'image se trace sur la fenetre graphique mais on peut la placer dans un canvas (surface)"""
+    """Trace une image à la postion donnée attention si vous appliquez la transparence il ne faut pas que l'image
+    soit trnaparente elle même Par défaut l'image se trace sur la fenetre graphique mais on peut la placer dans un
+    canvas (surface) """
     surface = __choix(canvas)
     if transparence < 255:
         image2 = pygame.Surface(image.get_size())
@@ -405,32 +414,34 @@ def recupere_evenement():
     evenement = pygame.event.poll()
     if evenement == pygame.NOEVENT:
         return "RIEN"
-    if evenement.type == pygame.KEYDOWN:
+    elif evenement.type == pygame.KEYDOWN:
         return "TOUCHE_ENFONCEE"
-    if evenement.type == pygame.KEYUP:
+    elif evenement.type == pygame.KEYUP:
         return "TOUCHE_RELACHEE"
-    if evenement.type == pygame.MOUSEMOTION:
+    elif evenement.type == pygame.MOUSEMOTION:
         return "SOURIS_MOUVEMENT"
-    if evenement.type == pygame.MOUSEBUTTONDOWN:
+    elif evenement.type == pygame.MOUSEBUTTONDOWN:
         if evenement.button == 1:
             return "SOURIS_BOUTON_GAUCHE_ENFONCE"
-        if evenement.button == 3:
+        elif evenement.button == 3:
             return "SOURIS_BOUTON_DROIT_ENFONCE"
-        if evenement.button == 4:
+        elif evenement.button == 4:
             return "SOURIS_MOLETTE_HAUT"
-        if evenement.button == 5:
+        elif evenement.button == 5:
             return "SOURIS_MOLETTE_BAS"
-        return "RIEN"
+        else:
+            return "RIEN"
     elif evenement.type == pygame.MOUSEBUTTONUP:
         if evenement.button == 1:
             return "SOURIS_BOUTON_GAUCHE_RELACHE"
-        if evenement.button == 3:
+        elif evenement.button == 3:
             return "SOURIS_BOUTON_DROIT_RELACHE"
-        if evenement.button == 4:
+        elif evenement.button == 4:
             return "SOURIS_MOLETTE_HAUT"
-        if evenement.button == 5:
+        elif evenement.button == 5:
             return "SOURIS_MOLETTE_BAS"
-        return "RIEN"
+        else:
+            return "RIEN"
     elif evenement.type == pygame.QUIT:
         return "EXIT"
     else:
@@ -439,21 +450,26 @@ def recupere_evenement():
 
 def souris_x():
     """Donne la position en x de la souris au moment où l'événement est récupéré"""
+    global evenement
     return evenement.pos[0]
 
 
 def souris_y():
     """Donne la position en y de la souris au moment où l'événement est récupéré"""
+    global evenement
     return evenement.pos[1]
 
 
 def coordonnees_souris():
     """Donne les coordonnees de la souris"""
+    global evenement
     return evenement.pos[0], evenement.pos[1]
 
 
 def touche():
     """Donne la touche appuyé au moment de la récupération de l'événement sous forme de chaine de caractère"""
+    global evenement
+    global clavier
     caractere = pygame.key.name(evenement.key)
     return clavier.get(caractere, caractere)
 
@@ -480,6 +496,7 @@ def donne_touche():
 
 def sauvegarde_fenetre():
     """retourne une image (surface) de l'écran """
+    global fenetre
     return fenetre.copy()
 
 
@@ -577,4 +594,15 @@ def frame_suivante():
     Attend le temps nécéssaire pour avoir le nombre d'image par seconde demandé
     entre deux appels.
     """
+    global fps
+    global debut
     debut.tick(fps)
+
+
+def hex_to_rgb(hex):
+    rgb = []
+    for i in (0, 2, 4):
+        decimal = int(hex[i:i + 2], 16)
+        rgb.append(decimal)
+
+    return tuple(rgb)
