@@ -48,6 +48,7 @@ def create_window(width=300, height=200, name="window", icon=None):
     else:
         image = create_image(25, 25)
         draw_rectangle_right(0, 0, 25, 25, "FF0000", canvas=image)
+    # noinspection DuplicatedCode
     keyboard = {"q": "a", ";": "m", "a": "q", "z": "w", "w": "z", "m": ","}
     pygame.init()
     window = pygame.display.set_mode((width, height))
@@ -221,6 +222,7 @@ def __draw_quarter_sector3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
                     angle2 < 0 and math.fmod(angle2, 2 * math.pi) > -math.pi / 2 - 0.00001):
                 draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
         else:
+            # noinspection DuplicatedCode
             if i > -r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * (-i)))
             else:
@@ -246,7 +248,7 @@ def __draw_quarter_sector4(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), -math.tan(angle2) * i))
             else:
                 hmin = -int(math.tan(angle2) * i)
-            if (angle1 % (2 * math.pi) == -math.pi / 2 or angle1 % (2 * math.pi) == 3 * math.pi / 2):
+            if angle1 % (2 * math.pi) == -math.pi / 2 or angle1 % (2 * math.pi) == 3 * math.pi / 2:
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * (-i)))
@@ -354,8 +356,8 @@ def save_image_matrix(mat, path, local=True):
 
 
 def draw_image(image, x, y, transparency=255, canvas=None):
-    """Draws an image at the given position. Note that if you apply transparency, the image must not be transparent itself.
-    By default, the image is drawn on the graphics window, but it can be placed in a canvas (surface)"""
+    """Draws an image at the given position. Note that if you apply transparency, the image must not be transparent
+    itself. By default, the image is drawn on the graphics window, but it can be placed in a canvas (surface) """
     surface = __choose(canvas)
     if transparency < 255:
         image2 = pygame.Surface(image.get_size())
@@ -371,13 +373,13 @@ def transform_image(image, angle=0, zoom=1.0):
     return pygame.transform.rotozoom(image, angle, zoom)
 
 
-def select_part_of_image(image, x, y, l, h):
+def select_part_of_image(image, x, y, w, h):
     """
     Selects a part of the preloaded image.
     Note that modifying the selected image also modifies the original image, so there is no memory creation.
     However, you can use the transformation function on it or display it.
     """
-    return image.subsurface(Rect(x, y, l, h))
+    return image.subsurface(Rect(x, y, w, h))
 
 
 def get_event():
