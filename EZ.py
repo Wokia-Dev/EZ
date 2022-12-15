@@ -105,7 +105,6 @@ def draw_point(x, y, color, transparency=255, canvas=None):
     If a canvas (in reality a surface) is given, then the drawing is done on the canvas and not on the screen"""
     surface = __choose(canvas)
     rgb_color = hex_to_rgb(color)
-    # surface.set_at((x,y),pygame.Color(rgb_color[0],rgb_color[1],rgb_color[2],transparency))
     pygame.gfxdraw.pixel(surface, x, y, (rgb_color[0], rgb_color[1], rgb_color[2], transparency))
 
 
