@@ -67,8 +67,7 @@ def create_image(length, height):
     """Creation of an image (Surface) that can be modified and saved"""
     if pygame.display.get_init():
         return pygame.Surface((length, height)).convert_alpha()
-    else:
-        return pygame.Surface((length, height))
+    return pygame.Surface((length, height))
 
 
 def get_image_color(image, x, y):
@@ -273,12 +272,11 @@ def draw_angular_sector(x, y, r1, r2, angle1, angle2, color, transparency=255, c
                 function[start_angular % 4](x, y, r1, r2, math.radians(start_angle), math.radians(maxi), color,
                                             transparency, canvas)
                 return
-            else:
-                function[start_angular % 4](x, y, r1, r2, math.radians(start_angle),
-                                            math.radians(start_angular * 90 + 90), color,
-                                            transparency, canvas)
-                start_angle = start_angular * 90 + 90
-                start_angular += 1
+            function[start_angular % 4](x, y, r1, r2, math.radians(start_angle),
+                                        math.radians(start_angular * 90 + 90), color,
+                                        transparency, canvas)
+            start_angle = start_angular * 90 + 90
+            start_angular += 1
 
 
 def draw_arc(x, y, r, angle1, angle2, color="000000", transparency=255, canvas=None):
@@ -316,8 +314,7 @@ def load_image(path, local=True):
 
     if pygame.display.get_init:
         return pygame.image.load(path).convert_alpha()
-    else:
-        return pygame.image.load(path)
+    return pygame.image.load(path)
 
 
 def load_image_as_matrix(path, local=True):
@@ -401,34 +398,32 @@ def get_event():
     event = pygame.event.poll()
     if event == pygame.NOEVENT:
         return "NOTHING"
-    elif event.type == pygame.KEYDOWN:
+    if event.type == pygame.KEYDOWN:
         return "KEY_DOWN"
-    elif event.type == pygame.KEYUP:
+    if event.type == pygame.KEYUP:
         return "KEY_UP"
-    elif event.type == pygame.MOUSEMOTION:
+    if event.type == pygame.MOUSEMOTION:
         return "MOUSE_MOVEMENT"
-    elif event.type == pygame.MOUSEBUTTONDOWN:
+    if event.type == pygame.MOUSEBUTTONDOWN:
         if event.button == 1:
             return "MOUSE_LEFT_BUTTON_DOWN"
-        elif event.button == 3:
+        if event.button == 3:
             return "MOUSE_RIGHT_BUTTON_DOWN"
-        elif event.button == 4:
+        if event.button == 4:
             return "MOUSE_SCROLL_UP"
-        elif event.button == 5:
+        if event.button == 5:
             return "MOUSE_SCROLL_DOWN"
-        else:
-            return "NOTHING"
+        return "NOTHING"
     elif event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
             return "MOUSE_LEFT_BUTTON_UP"
-        elif event.button == 3:
+        if event.button == 3:
             return "MOUSE_RIGHT_BUTTON_UP"
-        elif event.button == 4:
+        if event.button == 4:
             return "MOUSE_SCROLL_UP"
-        elif event.button == 5:
+        if event.button == 5:
             return "MOUSE_SCROLL_DOWN"
-        else:
-            return "NOTHING"
+        return "NOTHING"
     elif event.type == pygame.QUIT:
         return "EXIT"
     else:
