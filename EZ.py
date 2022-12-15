@@ -413,7 +413,7 @@ def get_event():
         if event.button == 5:
             return "MOUSE_SCROLL_DOWN"
         return "NOTHING"
-    elif event.type == pygame.MOUSEBUTTONUP:
+    if event.type == pygame.MOUSEBUTTONUP:
         if event.button == 1:
             return "MOUSE_LEFT_BUTTON_UP"
         if event.button == 3:
@@ -423,10 +423,9 @@ def get_event():
         if event.button == 5:
             return "MOUSE_SCROLL_DOWN"
         return "NOTHING"
-    elif event.type == pygame.QUIT:
+    if event.type == pygame.QUIT:
         return "EXIT"
-    else:
-        return "NOTHING"
+    return "NOTHING"
 
 
 def mouse_x():
