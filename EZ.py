@@ -530,12 +530,10 @@ def play_sound(sound=None):
 def wait_action():
     """Waits for an action from the user"""
     wait_state = True
+    valid_events = ["MOUSE_LEFT_BUTTON_DOWN", "MOUSE_RIGHT_BUTTON_DOWN", "KEY_DOWN", "EXIT"]
     while wait_state:
         event = get_event()
-        wait_state = (event != "MOUSE_LEFT_BUTTON_DOWN") and \
-                     (event != "MOUSE_LEFT_BUTTON_DOWN") and \
-                     (event != "KEY_DOWN") and \
-                     (event != "EXIT")
+        wait_state = event not in valid_events
 
 
 def update():
