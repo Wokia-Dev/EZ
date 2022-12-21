@@ -174,17 +174,18 @@ def draw_circle(x, y, radius, color="000000", transparency=255, canvas=None):
 def __draw_quarter_sector1(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle2) * r1)
     maxi = int(math.cos(angle1) * r2)
+    angle2_mod = math.fmod(angle2, 2 * math.pi)
     for i in range(mini, maxi + 1):
         if i == 0:
-            if (angle2 > 0 and math.fmod(angle2, 2 * math.pi) > math.pi / 2 - 0.00001) or (
-                    angle2 < 0 and math.fmod(angle2, 2 * math.pi) < -3 * math.pi / 2 + 0.00001):
+            if (angle2 > 0 and angle2_mod > math.pi / 2 - 0.00001) or (
+                    angle2 < 0 and angle2_mod < -3 * math.pi / 2 + 0.00001):
                 draw_rectangle_right(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * i))
             else:
                 hmin = int(math.tan(angle1) * i)
-            if angle2 % (2 * math.pi) == math.pi / 2 or angle2 % (2 * math.pi) == -3 * math.pi / 2:
+            if angle2_mod == math.pi / 2 or angle2_mod == -3 * math.pi / 2:
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * i))
@@ -194,17 +195,18 @@ def __draw_quarter_sector1(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
 def __draw_quarter_sector2(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle2) * r2)
     maxi = int(math.cos(angle1) * r1)
+    angle1_mod = math.fmod(angle1, 2 * math.pi)
     for i in range(mini, maxi + 1):
         if i == 0:
-            if (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < math.pi / 2 + 0.00001) or (
-                    angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -3 * math.pi / 2 + 0.00001):
+            if (angle1 > 0 and angle1_mod < math.pi / 2 + 0.00001) or (
+                    angle1 < 0 and angle1_mod < -3 * math.pi / 2 + 0.00001):
                 draw_rectangle_right(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i > -r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle2) * i))
             else:
                 hmin = int(math.tan(angle2) * i)
-            if angle1 % (2 * math.pi) == math.pi / 2 or angle1 % (2 * math.pi) == -3 * math.pi / 2:
+            if angle1_mod == math.pi / 2 or angle1_mod == -3 * math.pi / 2:
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * i))
@@ -214,10 +216,11 @@ def __draw_quarter_sector2(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
 def __draw_quarter_sector3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle1) * r2)
     maxi = int(math.cos(angle2) * r1)
+    angle2_mod = math.fmod(angle2, 2 * math.pi)
     for i in range(mini, maxi + 1):
         if i == 0:
-            if (angle2 > 0 and math.fmod(angle2, 2 * math.pi) > 3 * math.pi / 2 - 0.00001) or (
-                    angle2 < 0 and math.fmod(angle2, 2 * math.pi) > -math.pi / 2 - 0.00001):
+            if (angle2 > 0 and angle2_mod > 3 * math.pi / 2 - 0.00001) or (
+                    angle2 < 0 and angle2_mod > -math.pi / 2 - 0.00001):
                 draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
         else:
             # noinspection DuplicatedCode
@@ -225,7 +228,7 @@ def __draw_quarter_sector3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * (-i)))
             else:
                 hmin = int(math.tan(angle1) * (-i))
-            if angle2 % (2 * math.pi) == -math.pi / 2 or angle2 % (2 * math.pi) == 3 * math.pi / 2:
+            if angle2_mod == -math.pi / 2 or angle2_mod == 3 * math.pi / 2:
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * (-i)))
@@ -235,18 +238,18 @@ def __draw_quarter_sector3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
 def __draw_quarter_sector4(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     mini = int(math.cos(angle1) * r1)
     maxi = int(math.cos(angle2) * r2)
+    angle1_mod = math.fmod(angle1, 2 * math.pi)
     for i in range(mini, maxi + 1):
-        if i == 0:
-            if r1 != 0:
-                if (angle1 > 0 and math.fmod(angle1, 2 * math.pi) < 3 * math.pi / 2 + 0.00001) or (
-                        angle1 < 0 and math.fmod(angle1, 2 * math.pi) < -math.pi / 2 + 0.00001):
-                    draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
+        if i == 0 and r1 != 0:
+            if (angle1 > 0 and angle1_mod < 3 * math.pi / 2 + 0.00001) or (
+                    angle1 < 0 and angle1_mod < -math.pi / 2 + 0.00001):
+                draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), -math.tan(angle2) * i))
             else:
                 hmin = -int(math.tan(angle2) * i)
-            if angle1 % (2 * math.pi) == -math.pi / 2 or angle1 % (2 * math.pi) == 3 * math.pi / 2:
+            if angle1_mod == -math.pi / 2 or angle1_mod == 3 * math.pi / 2:
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * (-i)))
