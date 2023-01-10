@@ -581,5 +581,12 @@ def next_frame():
     start.tick(fps)
 
 
+def draw_array(array, canvas=None):
+    """
+    Draws an array of pixels on the screen.
+    """
+    pygame.surfarray.blit_array(__choose(canvas), array)
+
+
 def hex_to_rgb(hexa):
     return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
