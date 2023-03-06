@@ -9,6 +9,7 @@ import math
 import os
 import time
 
+import numpy as np
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
@@ -19,6 +20,7 @@ global keyboard
 
 global fps
 global start
+global clock
 current_file_path = os.path.dirname(__file__)
 
 """
@@ -42,7 +44,8 @@ def create_window(width=300, height=200, name="window", icon=None):
     of given size"""
     global window
     global keyboard
-    global sound
+    global clock
+    clock = pygame.time.Clock()
     if icon is not None:
         image = load_image(icon)
     else:
@@ -87,8 +90,7 @@ def destroy_window():
 
 def __choose(canvas):
     """Internal function"""
-    global window
-    if canvas is None:
+    if canvas is None or canvas == "default":
         surface = window
     else:
         surface = canvas
@@ -105,7 +107,9 @@ def draw_point(x, y, color, transparency=255, canvas=None):
     If a canvas (in reality a surface) is given, then the drawing is done on the canvas and not on the screen"""
     surface = __choose(canvas)
     rgb_color = hex_to_rgb(color)
-    pygame.gfxdraw.pixel(surface, x, y, (rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.pixel(
+        surface, x, y, (rgb_color[0], rgb_color[1], rgb_color[2], transparency)
+    )
 
 
 def dimensions(canvas=None):
@@ -115,19 +119,27 @@ def dimensions(canvas=None):
 
 def draw_segment(xA, yA, xB, yB, color="000000", transparency=255, canvas=None):
     """Draws a segment [AB] of given color (black by default) by default it is aliased
-        If a canvas (in reality a surface) is given, then the drawing is done on the canvas and not on the screen
+    If a canvas (in reality a surface) is given, then the drawing is done on the canvas and not on the screen
     """
     color = hex_to_rgb(color)
     surface = __choose(canvas)
     if yA == yB:
-        pygame.gfxdraw.hline(surface, xA, xB, yA, (color[0], color[1], color[2], transparency))
+        pygame.gfxdraw.hline(
+            surface, xA, xB, yA, (color[0], color[1], color[2], transparency)
+        )
     elif xA == xB:
-        pygame.gfxdraw.vline(surface, xA, yA, yB, (color[0], color[1], color[2], transparency))
+        pygame.gfxdraw.vline(
+            surface, xA, yA, yB, (color[0], color[1], color[2], transparency)
+        )
     else:
-        pygame.gfxdraw.line(surface, xA, yA, xB, yB, (color[0], color[1], color[2], transparency))
+        pygame.gfxdraw.line(
+            surface, xA, yA, xB, yB, (color[0], color[1], color[2], transparency)
+        )
 
 
-def draw_rectangle_right(xA, yA, length, height, color="000000", zoom=1, transparency=255, canvas=None):
+def draw_rectangle_right(
+        xA, yA, length, height, color="000000", zoom=1, transparency=255, canvas=None
+):
     """Draws a rectangle with vertical or horizontal sides, black by default.
     If a canvas is given, the drawing is done on the canvas instead of on the screen.
     """
@@ -136,19 +148,29 @@ def draw_rectangle_right(xA, yA, length, height, color="000000", zoom=1, transpa
     new_surface = pygame.Surface((length * zoom, height * zoom))
     new_surface.set_alpha(transparency)
     new_surface.fill(pygame.Color(rgb[0], rgb[1], rgb[2]))
-    surface.blit(new_surface, (int(float(xA) * float(zoom)), int(float(yA) * float(zoom))))
+    surface.blit(
+        new_surface, (int(float(xA) * float(zoom)), int(float(yA) * float(zoom)))
+    )
 
 
-def draw_triangle(xA, yA, xB, yB, xC, yC, color="000000", zoom=1, transparency=255, canvas=None):
+def draw_triangle(
+        xA, yA, xB, yB, xC, yC, color="000000", zoom=1, transparency=255, canvas=None
+):
     """Draws a triangle with the given vertices and color. The default color is black.
     If a canvas is given, the drawing is done on the canvas instead of on the screen.
     """
     rgb_color = hex_to_rgb(color)
     surface = __choose(canvas)
-    pygame.gfxdraw.filled_trigon(surface, int(float(xA) * float(zoom)), int(float(yA) * float(zoom)),
-                                 int(float(xB) * float(zoom)), int(float(yB) * float(zoom)),
-                                 int(float(xC) * float(zoom)), int(float(yC) * float(zoom)),
-                                 pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.filled_trigon(
+        surface,
+        int(float(xA) * float(zoom)),
+        int(float(yA) * float(zoom)),
+        int(float(xB) * float(zoom)),
+        int(float(yB) * float(zoom)),
+        int(float(xC) * float(zoom)),
+        int(float(yC) * float(zoom)),
+        pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency),
+    )
 
 
 def draw_disk(x, y, radius, color="000000", zoom=1, transparency=255, canvas=None):
@@ -157,9 +179,13 @@ def draw_disk(x, y, radius, color="000000", zoom=1, transparency=255, canvas=Non
     """
     rgb_color = hex_to_rgb(color)
     surface = __choose(canvas)
-    pygame.gfxdraw.filled_circle(surface, int(float(x) * float(zoom)), int(float(y) * float(zoom)),
-                                 int(float(radius) * float(zoom)),
-                                 pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.filled_circle(
+        surface,
+        int(float(x) * float(zoom)),
+        int(float(y) * float(zoom)),
+        int(float(radius) * float(zoom)),
+        pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency),
+    )
 
 
 def draw_circle(x, y, radius, color="000000", transparency=255, canvas=None):
@@ -168,7 +194,13 @@ def draw_circle(x, y, radius, color="000000", transparency=255, canvas=None):
     """
     rgb_color = hex_to_rgb(color)
     surface = __choose(canvas)
-    pygame.gfxdraw.aacircle(surface, x, y, radius, pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.aacircle(
+        surface,
+        x,
+        y,
+        radius,
+        pygame.Color(rgb_color[0], rgb_color[1], rgb_color[2], transparency),
+    )
 
 
 def __draw_quarter_sector1(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
@@ -178,14 +210,15 @@ def __draw_quarter_sector1(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle2 > 0 and angle2_mod > math.pi / 2 - 0.00001) or (
-                    angle2 < 0 and angle2_mod < -3 * math.pi / 2 + 0.00001):
+                    angle2 < 0 and angle2_mod < -3 * math.pi / 2 + 0.00001
+            ):
                 draw_rectangle_right(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * i))
             else:
                 hmin = int(math.tan(angle1) * i)
-            if angle2_mod == math.pi / 2 or angle2_mod == -3 * math.pi / 2:
+            if angle2_mod in (math.pi / 2, -3 * math.pi / 2):
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * i))
@@ -199,14 +232,15 @@ def __draw_quarter_sector2(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle1 > 0 and angle1_mod < math.pi / 2 + 0.00001) or (
-                    angle1 < 0 and angle1_mod < -3 * math.pi / 2 + 0.00001):
+                    angle1 < 0 and angle1_mod < -3 * math.pi / 2 + 0.00001
+            ):
                 draw_rectangle_right(x, y - r1, x, y - r2, color, t, canvas)
         else:
             if i > -r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle2) * i))
             else:
                 hmin = int(math.tan(angle2) * i)
-            if angle1_mod == math.pi / 2 or angle1_mod == -3 * math.pi / 2:
+            if angle1_mod in (math.pi / 2, -3 * math.pi / 2):
                 hmax = int(math.sqrt(abs(r2 * r2 - i * i)))
             else:
                 hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * i))
@@ -220,18 +254,23 @@ def __draw_quarter_sector3(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     for i in range(mini, maxi + 1):
         if i == 0:
             if (angle2 > 0 and angle2_mod > 3 * math.pi / 2 - 0.00001) or (
-                    angle2 < 0 and angle2_mod > -math.pi / 2 - 0.00001):
+                    angle2 < 0 and angle2_mod > -math.pi / 2 - 0.00001
+            ):
                 draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
         else:
             # noinspection DuplicatedCode
             if i > -r1:
-                hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * (-i)))
+                hmin = int(
+                    max(math.sqrt(abs(r1 * r1 - i * i)), math.tan(angle1) * (-i))
+                )
             else:
                 hmin = int(math.tan(angle1) * (-i))
-            if angle2_mod == -math.pi / 2 or angle2_mod == 3 * math.pi / 2:
+            if angle2_mod in (-math.pi / 2, 3 * math.pi / 2):
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
-                hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * (-i)))
+                hmax = int(
+                    min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle2) * (-i))
+                )
             draw_rectangle_right(x + i, y + hmin, x + i, y + hmax, color, t, canvas)
 
 
@@ -242,41 +281,76 @@ def __draw_quarter_sector4(x, y, r1, r2, angle1, angle2, color, t, canvas=None):
     for i in range(mini, maxi + 1):
         if i == 0 and r1 != 0:
             if (angle1 > 0 and angle1_mod < 3 * math.pi / 2 + 0.00001) or (
-                    angle1 < 0 and angle1_mod < -math.pi / 2 + 0.00001):
+                    angle1 < 0 and angle1_mod < -math.pi / 2 + 0.00001
+            ):
                 draw_rectangle_right(x, y + r1, x, y + r2, color, t, canvas)
         else:
             if i < r1:
                 hmin = int(max(math.sqrt(abs(r1 * r1 - i * i)), -math.tan(angle2) * i))
             else:
                 hmin = -int(math.tan(angle2) * i)
-            if angle1_mod == -math.pi / 2 or angle1_mod == 3 * math.pi / 2:
+            if angle1_mod in (-math.pi / 2, 3 * math.pi / 2):
                 hmax = int((math.sqrt(abs(r2 * r2 - i * i))))
             else:
-                hmax = int(min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * (-i)))
+                hmax = int(
+                    min(math.sqrt(abs(r2 * r2 - i * i)), math.tan(angle1) * (-i))
+                )
             draw_rectangle_right(x + i, y + hmin, x + i, y + hmax, color, t, canvas)
 
 
-def draw_angular_sector(x, y, r1, r2, angle1, angle2, color, transparency=255, canvas=None):
+def draw_angular_sector(
+        x, y, r1, r2, angle1, angle2, color, transparency=255, canvas=None
+):
     """Draw an angular sector delimited by two radius, be careful the function is slow
     If you give a canvas then the drawing is done on the canvas and not on the screen"""
     mini, maxi = min(angle1, angle2), max(angle1, angle2)
-    function = [__draw_quarter_sector1, __draw_quarter_sector2, __draw_quarter_sector3, __draw_quarter_sector4]
+    function = [
+        __draw_quarter_sector1,
+        __draw_quarter_sector2,
+        __draw_quarter_sector3,
+        __draw_quarter_sector4,
+    ]
     if maxi - mini >= 360:
-        __draw_quarter_sector1(x, y, r1, r2, 0, math.pi / 2, color, transparency, canvas)
-        __draw_quarter_sector2(x, y, r1, r2, math.pi / 2, math.pi, color, transparency, canvas)
-        __draw_quarter_sector3(x, y, r1, r2, math.pi, 3 * math.pi / 2, color, transparency, canvas)
-        __draw_quarter_sector4(x, y, r1, r2, 3 * math.pi / 2, 2 * math.pi, color, transparency, canvas)
+        __draw_quarter_sector1(
+            x, y, r1, r2, 0, math.pi / 2, color, transparency, canvas
+        )
+        __draw_quarter_sector2(
+            x, y, r1, r2, math.pi / 2, math.pi, color, transparency, canvas
+        )
+        __draw_quarter_sector3(
+            x, y, r1, r2, math.pi, 3 * math.pi / 2, color, transparency, canvas
+        )
+        __draw_quarter_sector4(
+            x, y, r1, r2, 3 * math.pi / 2, 2 * math.pi, color, transparency, canvas
+        )
     else:
         start_angular = mini // 90
         start_angle = mini
         while True:
             if maxi < start_angular * 90 + 90:
-                function[start_angular % 4](x, y, r1, r2, math.radians(start_angle), math.radians(maxi), color,
-                                            transparency, canvas)
+                function[start_angular % 4](
+                    x,
+                    y,
+                    r1,
+                    r2,
+                    math.radians(start_angle),
+                    math.radians(maxi),
+                    color,
+                    transparency,
+                    canvas,
+                )
                 return
-            function[start_angular % 4](x, y, r1, r2, math.radians(start_angle),
-                                        math.radians(start_angular * 90 + 90), color,
-                                        transparency, canvas)
+            function[start_angular % 4](
+                x,
+                y,
+                r1,
+                r2,
+                math.radians(start_angle),
+                math.radians(start_angular * 90 + 90),
+                color,
+                transparency,
+                canvas,
+            )
             start_angle = start_angular * 90 + 90
             start_angular += 1
 
@@ -287,26 +361,55 @@ def draw_arc(x, y, r, angle1, angle2, color="000000", transparency=255, canvas=N
     rgb_color = hex_to_rgb(color)
     surface = __choose(canvas)
     mini, maxi = min(-angle1, -angle2), max(-angle1, -angle2)
-    pygame.gfxdraw.arc(surface, x, y, r, mini, maxi, (rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.arc(
+        surface,
+        x,
+        y,
+        r,
+        mini,
+        maxi,
+        (rgb_color[0], rgb_color[1], rgb_color[2], transparency),
+    )
 
 
-def draw_ellipse(x, y, horizontal_radius, vertical_radius, color="000000", transparency=255, canvas=None):
+def draw_ellipse(
+        x,
+        y,
+        horizontal_radius,
+        vertical_radius,
+        color="000000",
+        transparency=255,
+        canvas=None,
+):
     """Draws an ellipse (oval) with center (x, y) and given horizontal and vertical radius.
     The ellipse is straight"""
     rgb_color = hex_to_rgb(color)
     surface = __choose(canvas)
-    pygame.gfxdraw.aaellipse(surface, x, y, horizontal_radius, vertical_radius,
-                             (rgb_color[0], rgb_color[1], rgb_color[2], transparency))
+    pygame.gfxdraw.aaellipse(
+        surface,
+        x,
+        y,
+        horizontal_radius,
+        vertical_radius,
+        (rgb_color[0], rgb_color[1], rgb_color[2], transparency),
+    )
 
 
-def draw_filled_ellipse(x, y, horizontal_radius, vertical_radius, color, transparency=255,
-                        canvas=None):
+def draw_filled_ellipse(
+        x, y, horizontal_radius, vertical_radius, color, transparency=255, canvas=None
+):
     """Draws the interior of an ellipse (oval) with center (x, y) and given horizontal and vertical radius.
     The ellipse is straight"""
     rgb = hex_to_rgb(color)
     surface = __choose(canvas)
-    pygame.gfxdraw.filled_ellipse(surface, x, y, horizontal_radius, vertical_radius,
-                                  (rgb[0], rgb[1], rgb[2], transparency))
+    pygame.gfxdraw.filled_ellipse(
+        surface,
+        x,
+        y,
+        horizontal_radius,
+        vertical_radius,
+        (rgb[0], rgb[1], rgb[2], transparency),
+    )
 
 
 def load_image(path, local=True):
@@ -315,7 +418,7 @@ def load_image(path, local=True):
         path = os.path.join(current_file_path, path)
 
     if pygame.display.get_init:
-        return pygame.image.load(path).convert_alpha()
+        return pygame.image.load(path)
     return pygame.image.load(path)
 
 
@@ -348,15 +451,15 @@ def save_image_matrix(mat, path, local=True):
     if not local:
         path = os.path.join(current_file_path, path)
     image = create_image(len(mat[0]), len(mat))
-    for row in range(len(mat)):
+    for row, item in enumerate(mat):
         for column in range(len(mat[0])):
-            color_image_pixel(image, column, row, mat[row][column][0], mat[row][column][1])
+            color_image_pixel(image, column, row, item[column][0], item[column][1])
     save_image(image, path)
 
 
-def draw_image(image, x, y, transparency=255, canvas=None):
+def draw_image(image, x, y, transparency=255, canvas=None, border_radius=0, border_color="000000", border_width=0):
     """Draws an image at the given position. Note that if you apply transparency, the image must not be transparent
-    itself. By default, the image is drawn on the graphics window, but it can be placed in a canvas (surface) """
+    itself. By default, the image is drawn on the graphics window, but it can be placed in a canvas (surface)"""
     surface = __choose(canvas)
     if transparency < 255:
         image2 = pygame.Surface(image.get_size())
@@ -368,7 +471,7 @@ def draw_image(image, x, y, transparency=255, canvas=None):
 
 
 def transform_image(image, angle=0, zoom=1.0):
-    """ Transforms an image with a rotation and/or zoom to give a new image"""
+    """Transforms an image with a rotation and/or zoom to give a new image"""
     return pygame.transform.rotozoom(image, angle, zoom)
 
 
@@ -382,7 +485,7 @@ def select_part_of_image(image, x, y, w, h):
 
 
 def get_event():
-    """ Gets an event
+    """Gets an event
     List of events:
     "NOTHING"
     "KEY_DOWN"
@@ -433,26 +536,21 @@ def get_event():
 
 def mouse_x():
     """Gives the x-coordinate of the mouse at the time the event is retrieved"""
-    global event
     return event.pos[0]
 
 
 def mouse_y():
     """Gives the y-coordinate of the mouse at the time the event is retrieved"""
-    global event
     return event.pos[1]
 
 
 def mouse_coordinates():
     """Gives the coordinates of the mouse"""
-    global event
-    return event.pos[0], event.pos[1]
+    return pygame.mouse.get_pos()
 
 
 def key():
     """Gives the key pressed at the time the event is retrieved as a string"""
-    global event
-    global keyboard
     character = pygame.key.name(event.key)
     return keyboard.get(character, character)
 
@@ -462,25 +560,24 @@ def get_key_pressed():
     which can be used to exit the program."""
     if pygame.display.get_init():
         while True:
-            event = get_event()
-            if event == "KEY_DOWN":
+            current_event = get_event()
+            if current_event == "KEY_DOWN":
                 print(key())
-            elif event == "MOUSE_RIGHT_BUTTON_DOWN":
+            elif current_event == "MOUSE_RIGHT_BUTTON_DOWN":
                 return 1
             else:
                 create_window(400, 400)
                 while True:
-                    event = get_event()
-                    if event == "KEY_DOWN":
+                    current_event = get_event()
+                    if current_event == "KEY_DOWN":
                         print(key())
-                    elif event == "MOUSE_RIGHT_BUTTON_DOWN":
+                    elif current_event == "MOUSE_RIGHT_BUTTON_DOWN":
                         destroy_window()
                         return 1
 
 
 def save_window():
     """Returns an image (surface) of the screen"""
-    global window
     return window.copy()
 
 
@@ -533,10 +630,15 @@ def play_sound(sound=None):
 def wait_action():
     """Waits for an action from the user"""
     wait_state = True
-    valid_events = ["MOUSE_LEFT_BUTTON_DOWN", "MOUSE_RIGHT_BUTTON_DOWN", "KEY_DOWN", "EXIT"]
+    valid_events = [
+        "MOUSE_LEFT_BUTTON_DOWN",
+        "MOUSE_RIGHT_BUTTON_DOWN",
+        "KEY_DOWN",
+        "EXIT",
+    ]
     while wait_state:
-        event = get_event()
-        wait_state = event not in valid_events
+        current_event = get_event()
+        wait_state = current_event not in valid_events
 
 
 def update():
@@ -544,7 +646,7 @@ def update():
     pygame.display.flip()
 
 
-def clock():
+def get_time():
     """Gives the duration in seconds."""
     return time.time()
 
@@ -559,7 +661,9 @@ def load_font(size=40, font_name=None, local=True):
 def image_text(text, font, color="000000", antialiasing=True, tuple_background=None):
     """Returns an image containing the text to be displayed."""
     rgb_color = hex_to_rgb(color)
-    return font.render(text, antialiasing, (rgb_color[0], rgb_color[1], rgb_color[2]), tuple_background)
+    return font.render(
+        text, antialiasing, (rgb_color[0], rgb_color[1], rgb_color[2]), tuple_background
+    )
 
 
 def fps_settings(n=60):
@@ -576,8 +680,6 @@ def next_frame():
     """
     Wait for the necessary time to have the requested number of frames per second between two calls.
     """
-    global fps
-    global start
     start.tick(fps)
 
 
@@ -588,5 +690,61 @@ def draw_array(array, canvas=None):
     pygame.surfarray.blit_array(__choose(canvas), array)
 
 
+def get_screen_array(start_width, surface=None):
+    """
+    Returns an array of pixels of the screen.
+    """
+    if surface:
+        return np.asarray(pygame.surfarray.array3d(surface), dtype=np.uint8)[start_width:]
+    if start_width:
+        return np.asarray(pygame.surfarray.array3d(window), dtype=np.uint8)[start_width:]
+    if not start_width:
+        if surface:
+            return np.asarray(pygame.surfarray.array3d(surface), dtype=np.uint8)
+        return np.asarray(pygame.surfarray.array3d(window), dtype=np.uint8)
+
+
+def get_fps():
+    """
+    Returns the number of frames per second.
+    """
+    return int(clock.get_fps())
+
+
+def tick(n=60):
+    """
+    Returns the number of milliseconds since the last call to tick.
+    """
+    clock.tick(n)
+
+
+def update_caption(caption):
+    """
+    Updates the caption of the window.
+    """
+    pygame.display.set_caption(caption)
+
+
+def array3d(texture):
+    """
+    Returns a 3D array of the texture.
+    """
+    return pygame.surfarray.array3d(texture)
+
+
+def change_cursor(cursor):
+    """
+    Changes the cursor.
+    """
+    pygame.mouse.set_cursor(cursor)
+
+
+def create_surface(width, height):
+    """
+    Creates a surface.
+    """
+    return pygame.Surface((width, height))
+
+
 def hex_to_rgb(hexa):
-    return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(hexa[i: i + 2], 16) for i in (0, 2, 4))
